@@ -1,46 +1,49 @@
 #include "list.h"
 
-List* list_create(void* data, size_t data_size)
+void list_create(List* list, void* data, size_t data_size)
 {
-    List* head = (List*)malloc(sizeof(List));
-    head->data = malloc(data_size);
-    head->next = NULL;
-    memcpy(head->data, data, data_size);
-
-    return head;
+    list->head = (List_node*)malloc(sizeof(List_node));
+    list->head->data = malloc(data_size);
+    list->head->next = NULL;
+    memcpy(list->head->data, data, data_size);
+    list->size = 1;
 }
 
-void list_destroy(List* head)
+void list_destroy(List* list)
 {
-    clear_list(head);
-    head = NULL;
+    list_clear(list);
+    list->head = NULL;
 }
 
-int16_t list_push_back(List* head, void* data, size_t data_size)
+void list_push_back(List* list, void* data, size_t data_size)
 {
-    List* tail = head;
+    List_node* tail = list->head;
 
     while(tail->next != NULL)
         tail = tail->next;
-    tail->next = (List*)malloc(sizeof(List));
+    
+    tail->next = (List_node*)malloc(sizeof(List_node));
     tail->next->data = malloc(data_size);
     memcpy(tail->next->data, data, data_size);
+    
     tail->next->next = NULL;
-
-    return 1;
+    list->size += 1;
 }
 
-int16_t list_erase(List* head, void* data, size_t data_size)
+int16_t list_erase(List* list, void* data, size_t data_size)
 {
-    List* prev, *next;
-    prev = head;
+    List_node* prev, *next;
+    prev = list->head;
 
     // if need delete head
-    if (!memcmp(head->data, data, data_size))
+    if (!memcmp(list->head->data, data, data_size))
     {
-        head = head->next;
+        list->head = list->head->next;
+
         free(prev->data);
         free(prev);
+
+        list->size -= 1;
         return 1;
     }
 
@@ -63,6 +66,7 @@ int16_t list_erase(List* head, void* data, size_t data_size)
         free(prev->next);
 
         prev->next = next;
+        list->size -= 1;
         return 1;
     }
     else
@@ -71,24 +75,25 @@ int16_t list_erase(List* head, void* data, size_t data_size)
     }
 }
 
-void list_clear(List* head)
+void list_clear(List* list)
 {
-    List* prev = head;
+    List_node* prev = list->head;
 
     // moving head
-    while(head != NULL)
+    while(list->head != NULL)
     {
-        prev = head;
-        head = head->next;
+        prev = list->head;
+        list->head = list->head->next;
 
         free(prev->data);
         free(prev);
     }
+    list->size = 0;
 }
 
-void list_print(List* head, void (*_print_list_element)(void*))
+void list_print(List* list, void (*_print_list_element)(void*))
 {
-    List* next = head; 
+    List_node* next = list->head; 
     while(next != NULL)
     {
         _print_list_element((void*)next->data);
@@ -97,9 +102,9 @@ void list_print(List* head, void (*_print_list_element)(void*))
 }
 
 
-void* list_find(List* head, void* (*_check_element)(void*))
+void* list_find(List* list, void* (*_check_element)(void*))
 {
-    List* next = head;
+    List_node* next = list->head;
     uint8_t found = 0;
 
     while(next != NULL)

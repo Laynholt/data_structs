@@ -30,7 +30,8 @@ int main()
     cli.threads = 11;
     cli.is_empty = 0;
 
-    List* head = list_create(&cli, sizeof(cli));    
+    List list;
+    list_create(&list, &cli, sizeof(cli));    
     
     for(uint16_t i = 0; i < 5; ++i)
     {
@@ -41,14 +42,14 @@ int main()
         if (i == 3)
             cli.is_empty = 1;
 
-        list_push_back(head, &cli, sizeof(cli));
+        list_push_back(&list, &cli, sizeof(cli));
     }
 
-    list_print(head, print_element);
+    list_print(&list, print_element);
     printf("------------------------------------\n");
 
     Client* _cli;
-    _cli = (Client*)list_find(head, check_element);
+    _cli = (Client*)list_find(&list, check_element);
     if (_cli != NULL)
     {
         _cli->client_id = 999;
@@ -56,9 +57,9 @@ int main()
         _cli->is_empty = 0;
     }
 
-    list_print(head, print_element);
-
-    list_destroy(head);
+    list_print(&list, print_element);
+    printf("List size: %u\n", list.size);
+    list_destroy(&list);
 
     return 0;
 }

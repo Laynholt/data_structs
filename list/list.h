@@ -5,20 +5,27 @@
 #include <stdint.h>
 #include <string.h>
 
-typedef struct List
+typedef struct List_node
 {
     void* data;
-    struct List* next;
+    struct List_node* next;
+
+}List_node;
+
+typedef struct List
+{
+    struct List_node* head;
+    uint16_t size;
     
 }List;
 
-extern List* list_create(void* data, size_t data_size);
-extern void list_destroy(List* head);
-extern int16_t list_push_back(List* head, void* data, size_t data_size);
-extern int16_t list_erase(List* head, void* data, size_t data_size);
-extern void list_clear(List* head);
+extern void list_create(List* list, void* data, size_t data_size);
+extern void list_destroy(List* list);
+extern void list_push_back(List* list, void* data, size_t data_size);
+extern int16_t list_erase(List* list, void* data, size_t data_size);
+extern void list_clear(List* list);
 
-extern void list_print(List* head, void (*_print_list_element)(void*));
-extern void* list_find(List* head, void* (*_check_element)(void*));
+extern void list_print(List* list, void (*_print_list_element)(void*));
+extern void* list_find(List* list, void* (*_check_element)(void*));
 
 #endif

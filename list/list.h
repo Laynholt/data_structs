@@ -15,6 +15,7 @@ typedef struct List_node
 typedef struct List
 {
     struct List_node* head;
+    struct List_node* tail;
     uint16_t size;
     
 }List;

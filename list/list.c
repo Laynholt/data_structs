@@ -6,6 +6,7 @@ void list_create(List* list, void* data, size_t data_size)
     list->head->data = malloc(data_size);
     list->head->next = NULL;
     memcpy(list->head->data, data, data_size);
+    list->tail = list->head;
     list->size = 1;
 }
 
@@ -13,20 +14,17 @@ void list_destroy(List* list)
 {
     list_clear(list);
     list->head = NULL;
+    list->tail = NULL;
 }
 
 void list_push_back(List* list, void* data, size_t data_size)
 {
-    List_node* tail = list->head;
-
-    while(tail->next != NULL)
-        tail = tail->next;
+    list->tail->next = (List_node*)malloc(sizeof(List_node));
+    list->tail->next->data = malloc(data_size);
+    memcpy(list->tail->next->data, data, data_size);
     
-    tail->next = (List_node*)malloc(sizeof(List_node));
-    tail->next->data = malloc(data_size);
-    memcpy(tail->next->data, data, data_size);
-    
-    tail->next->next = NULL;
+    list->tail->next->next = NULL;
+    list->tail = list->tail->next;
     list->size += 1;
 }
 
@@ -45,10 +43,10 @@ int16_t list_erase(List* list, void* data, size_t data_size)
 
         list->size -= 1;
         return 1;
-    }
+    } 
 
     uint8_t found = 0;
-    while(prev != NULL)
+    while(prev->next != NULL)
     {
         if(!memcmp(prev->next->data, data, data_size))
         {
@@ -60,12 +58,24 @@ int16_t list_erase(List* list, void* data, size_t data_size)
 
     if (found)
     {
-        next = prev->next->next;
-        
-        free(prev->next->data);
-        free(prev->next);
+        if (prev->next == list->tail)
+        {
+            free(list->tail->data);
+            free(list->tail);
 
-        prev->next = next;
+            list->tail = prev;
+            list->tail->next = NULL;
+        }
+        else
+        {
+            next = prev->next->next;
+            
+            free(prev->next->data);
+            free(prev->next);
+
+            prev->next = next;
+        }
+
         list->size -= 1;
         return 1;
     }
